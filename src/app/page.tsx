@@ -1,69 +1,75 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { Hero } from "@/components/Hero";
+import { EcosystemScene } from "@/components/EcosystemScene";
+import { ProductCarousel } from "@/components/ProductCarousel";
+import { ProductSlide } from "@/components/ProductSlide";
+import { ServicesExplorer } from "@/components/ServicesExplorer";
+import { TepJourney } from "@/components/TepJourney";
+import { TeamCarousel } from "@/components/TeamCarousel";
+import { CultureGallery } from "@/components/CultureGallery";
+import { PixelEdge } from "@/components/PixelEdge";
+import { AboutScene } from "@/components/AboutScene";
+import { ButtonLink, Section, SectionHeader } from "@/components/ui";
+import { PRODUCTS } from "@/content/products";
+import { SITE } from "@/content/site";
+import { getTeam } from "@/lib/content";
+import { TEP_INTRO } from "@/content/tep";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: { absolute: `${SITE.name} — ${SITE.tagline}` },
+  description: SITE.description,
+  alternates: { canonical: "/" },
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org", "@type": "Organization",
+  name: SITE.name, legalName: SITE.legalName, url: SITE.url,
+  logo: `${SITE.url}/icon.png`, email: SITE.email, telephone: SITE.phone,
+  address: { "@type": "PostalAddress", addressLocality: "Nashik", addressRegion: "Maharashtra", addressCountry: "IN" },
+  sameAs: [SITE.social.linkedin, SITE.social.github, SITE.social.instagram],
+};
+
+export default async function HomePage() {
+  const team = await getTeam();
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c") }} />
+      <Hero />
+
+      <AboutScene />
+
+      <PixelEdge from="var(--paper)" to="#ffffff" />
+      <Section theme="white" labelledBy="eco">
+        <SectionHeader id="eco" title="Three ways into DeboisTech." lead="Products we build, engineering we deliver for clients, and a program that trains engineers. Pick one." />
+        <EcosystemScene />
+      </Section>
+
+      <PixelEdge from="#ffffff" to="var(--paper)" />
+      <Section theme="light" labelledBy="products">
+        <SectionHeader id="products" title="Three products, built in-house." lead="Open one to see how it works, then go deeper on its own page." />
+        <ProductCarousel label="DeboisTech products" slides={PRODUCTS.map((p) => ({ id: p.slug, label: p.name, node: <ProductSlide product={p} /> }))} />
+      </Section>
+
+      <PixelEdge from="var(--paper)" to="#ffffff" />
+      <Section theme="white" labelledBy="services">
+        <SectionHeader id="services" title="What we engineer." lead="Seven capability areas. Pick one to see who it’s for and what an engagement delivers." />
+        <ServicesExplorer />
+      </Section>
+
+      <PixelEdge from="#ffffff" to="var(--paper)" />
+      <Section theme="light" labelledBy="team">
+        <SectionHeader id="team" title="Meet the team." lead={`${SITE.legalName} works from ${SITE.location}, with clients across India and internationally, remotely.`} />
+        <TeamCarousel members={team ?? undefined} />
+        <CultureGallery />
+        <div className="mt-10"><ButtonLink href="/company" variant="secondary">About the company</ButtonLink></div>
+      </Section>
+
+      <PixelEdge from="var(--paper)" to="#ffffff" />
+      <Section theme="white" labelledBy="tep">
+        <SectionHeader id="tep" title="Learn by building." lead={TEP_INTRO} />
+        <TepJourney />
+      </Section>
+
+    </>
   );
 }

@@ -1,26 +1,317 @@
 @import "tailwindcss";
 
+/* ---------- Design tokens ---------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Palette: black, white, and the turtle's green. Nothing else. */
+  --forest: #000000;     /* pure black: engineering + Labs scenes */
+  --paper: #0a0a0a;      /* base page */
+  --wash: #141414;       /* raised sections, cards */
+  --forest-2: #141414;
+  --forest-3: #1f1f1f;   /* highest: active states */
+  --mint: #141414;
+  /* text */
+  --ink: #fafafa;       /* 19:1 on base */
+  --ink-muted: #a3a3a3; /* 6.5–7.9:1 on every dark surface */
+  --on-dark: #fafafa;
+  --on-dark-muted: #a3a3a3;
+  /* the one accent: the DeboisTech turtle's green */
+  --brand: #4aae5e;
+  --brand-text: #4aae5e;
+  --brand-glow: #4aae5e;
+  --brand-glow-hi: #8fd99c; /* hover */
+  --brand-logo: #3c944c;    /* sampled from the official turtle: graphics only */
+  --line: #262626;
+  --line-strong: #6b6b6b;   /* ≥3:1 for control borders */
+  --line-dark: #262626;
+  --error: #ff8a80;
+  --error-bg: #2a1210;
+  --ok: #4aae5e;
+  /* shape + motion */
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur: 300ms;
+  --dur-slow: 700ms;
+  --container: 1200px;
+  --header-h: 68px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-forest: var(--forest);
+  --color-forest-2: var(--forest-2);
+  --color-forest-3: var(--forest-3);
+  --color-mint: var(--mint);
+  --color-wash: var(--wash);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
+  --color-brand-logo: var(--brand-logo);
+  --color-glow: var(--brand-glow);
+  --color-line: var(--line);
+  --color-line-dark: var(--line-dark);
+  --color-ondark: var(--on-dark);
+  --color-ondark-muted: var(--on-dark-muted);
+  --color-error: var(--error);
+  --color-line-strong: var(--line-strong);
+  --color-glow-hi: var(--brand-glow-hi);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
 }
-
+::selection { background: var(--brand-glow); color: var(--forest); }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: clip;
 }
+
+/* ---------- Focus (WCAG 2.2: visible, 3:1 on both themes) ---------- */
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--brand-glow);
+}
+
+.container-x {
+  width: min(var(--container), 100% - 2rem);
+  margin-inline: auto;
+}
+@media (min-width: 640px) {
+  .container-x { width: min(var(--container), 100% - 3rem); }
+}
+
+/* pixel grid backdrop used on dark sections */
+.pixel-grid {
+  background-image:
+    linear-gradient(to right, rgb(74 174 94 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(74 174 94 / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* skip link */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--forest);
+  color: var(--on-dark);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+}
+.skip-link:focus { top: 0.75rem; }
+
+/* ---------- Motion ---------- */
+@keyframes turtle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes dash-flow {
+  to { stroke-dashoffset: -48; }
+}
+@keyframes pixel-drift {
+  0% { opacity: 0; transform: translate(0, 0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(28px, -14px); }
+}
+@keyframes blink { 50% { opacity: 0; } }
+.anim-bob { animation: turtle-bob 5s ease-in-out infinite; }
+.anim-flow { stroke-dasharray: 6 6; animation: dash-flow 2.4s linear infinite; }
+.anim-pixel { animation: pixel-drift 3.2s ease-out infinite; }
+.anim-caret { animation: blink 1s steps(1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .anim-flow, .anim-pixel, .anim-bob, .anim-caret { animation: none !important; }
+  .reveal, .draw, .arrive { transition: none !important; }
+  [data-inview="false"] .reveal { opacity: 1 !important; transform: none !important; }
+  [data-inview="false"] .draw { stroke-dashoffset: 0 !important; }
+  [data-inview="false"] .arrive { transform: none !important; }
+  .grow { transition: none !important; }
+  [data-inview="false"] .grow { transform: none !important; }
+  .hero-pixel, .hero-turtle { transform: none !important; opacity: 1 !important; }
+}
+
+/* ---------- Display type ---------- */
+.display {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+/* ---------- In-view choreography (JS sets data-inview; no-JS sees everything) ---------- */
+.reveal { transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); transition-delay: var(--d, 0s); }
+[data-inview="false"] .reveal, .reveal[data-inview="false"] { opacity: 0; transform: translateY(18px); }
+.draw { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1.4s var(--ease); transition-delay: var(--d, 0s); }
+[data-inview="false"] .draw { stroke-dashoffset: 1; }
+
+/* ---------- Hero: pixels peel from the shell as you scroll (--p is 0..1) ---------- */
+.hero-pixel {
+  position: absolute;
+  background: var(--brand-logo);
+  transform: translate(calc(var(--p, 0) * var(--dx, 60px) + var(--rx, 0) * 1px), calc(var(--p, 0) * var(--dy, 180px) + var(--ry, 0) * 1px));
+  opacity: calc(1 - var(--p, 0) * 0.9);
+  will-change: transform;
+}
+.hero-turtle { transform: translate3d(calc(var(--tx, 0) * 22px), calc(var(--p, 0) * 36px + var(--ty, 0) * 14px), 0) rotate(calc(var(--tx, 0) * 1.4deg)); will-change: transform; }
+
+/* the path draws left to right, then the turtle arrives */
+.grow { transform-origin: left; transition: transform 1.8s var(--ease); }
+[data-inview="false"] .grow { transform: scaleX(0); }
+
+/* turtle arriving at the end of its path */
+.arrive { transition: transform 1.8s var(--ease); }
+[data-inview="false"] .arrive { transform: translateX(-62vw); }
+
+/* ---------- Manifesto text: words ink in as the block scrolls through (--p 0..1) ---------- */
+.ink-word { opacity: clamp(0.42, calc(var(--p, 1) * (var(--n) + 3) - var(--i) + 0.42), 1); transition: opacity 0.2s linear; }
+
+/* ---------- Ticker (documents MotoAdmin tracks) ---------- */
+@keyframes ticker { to { transform: translateX(-50%); } }
+.ticker-track { display: flex; width: max-content; animation: ticker 48s linear infinite; }
+.ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none !important; width: auto; flex-wrap: wrap; }
+  .ticker-dup { display: none; }
+  .ink-word { opacity: 1 !important; }
+}
+
+/* soft light behind the hero turtle: one restrained wash, not a gradient background */
+.hero-glow { background: radial-gradient(closest-side, rgb(74 174 94 / 0.2), transparent 70%); }
+
+/* A light "window" inside the dark site, for content authored on white (product diagrams, previews). */
+.light-surface {
+  /* White surface: same token names, light values. Used for white sections and product "windows". */
+  --ink: #0a0a0a; --ink-muted: #525252; --line: #d4d4d4; --line-strong: #8c8c8c;
+  --brand: #1f7a3a; --brand-text: #1f7a3a; --brand-logo: #1f7a3a;
+  --wash: #f5f5f5; --paper: #ffffff; --forest: #0a0a0a; --forest-2: #f5f5f5; --forest-3: #ebebeb; --mint: #f5f5f5;
+  background: #ffffff; color: #0a0a0a;
+}
+
+/* ---------- Section breaks: pixel stairs assemble column by column ---------- */
+.px { transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+[data-inview="false"] .px { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) { .px { transition: none !important; } [data-inview="false"] .px { opacity: 1 !important; transform: none !important; } }
+
+/* ---------- Headings rise out of a mask ---------- */
+.mask { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.mask > span { display: block; transition: transform 1s var(--ease); }
+[data-inview="false"] .mask > span { transform: translateY(105%); }
+@media (prefers-reduced-motion: reduce) { .mask > span { transition: none !important; } [data-inview="false"] .mask > span { transform: none !important; } }
+
+/* ---------- Pointer spotlight (needs --mx/--my from SpotlightGroup) ---------- */
+.spot { position: relative; isolation: isolate; }
+.spot::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity 0.3s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(74 174 94 / 0.1), transparent 60%);
+}
+.spot:hover::before, .spot:focus-within::before { opacity: 1; }
+
+/* scroll progress line under the header */
+.progress-line { transform-origin: left; transform: scaleX(var(--sp, 0)); }
+.px { transform-box: fill-box; }
+
+/* Long pages: skip layout/paint for sections until they're near the viewport. The hero is a div, so it always renders. */
+main section { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+
+/* ---------- Liquid-glass navigation ---------- */
+.glass-host { --g-bg: rgba(14, 14, 14, 0.58); --g-edge: rgba(255, 255, 255, 0.16); --g-edge-hi: rgba(255, 255, 255, 0.34);
+  --g-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.55); --g-fg: #fafafa; --g-fg-dim: rgba(250, 250, 250, 0.78);
+  --g-hover: rgba(255, 255, 255, 0.1); --g-active: rgba(255, 255, 255, 0.16); --g-accent: #4aae5e; }
+.glass-host[data-tone="light"] { --g-bg: rgba(255, 255, 255, 0.66); --g-edge: rgba(10, 10, 10, 0.1); --g-edge-hi: rgba(255, 255, 255, 0.9);
+  --g-shadow: 0 10px 40px -14px rgba(10, 10, 10, 0.28); --g-fg: #0a0a0a; --g-fg-dim: rgba(10, 10, 10, 0.78);
+  --g-hover: rgba(10, 10, 10, 0.07); --g-active: rgba(10, 10, 10, 0.1); --g-accent: #1f7a3a; }
+
+.glass-pill, .glass-panel {
+  background: var(--g-bg); color: var(--g-fg);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--g-edge);
+  box-shadow: inset 0 1px 0 var(--g-edge-hi), inset 0 -1px 0 rgba(0, 0, 0, 0.08), var(--g-shadow);
+  transition: background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, max-width 0.45s var(--ease), height 0.35s var(--ease);
+}
+.glass-pill { max-width: 1200px; height: 3.5rem; }
+/* The menu panel needs to stay legible over any content, so its glass is denser. */
+.glass-host .glass-panel { --g-bg: rgba(14, 14, 14, 0.86); }
+.glass-host[data-tone="light"] .glass-panel { --g-bg: rgba(255, 255, 255, 0.9); }
+.glass-host[data-scrolled="true"] .glass-pill { max-width: 1020px; height: 3.25rem; -webkit-backdrop-filter: blur(28px) saturate(200%); backdrop-filter: blur(28px) saturate(200%); }
+.glass-link { color: var(--g-fg-dim); }
+.glass-link:hover { background: var(--g-hover); color: var(--g-fg); }
+.glass-active { background: var(--g-active); color: var(--g-fg); box-shadow: inset 0 1px 0 var(--g-edge-hi); }
+.glass-host :focus-visible { outline: 2px solid var(--g-accent); outline-offset: 2px; }
+.glass-logo-light { opacity: 0; transition: opacity 0.35s ease; }
+.glass-logo-dark { transition: opacity 0.35s ease; }
+.glass-host[data-tone="light"] .glass-logo-light { opacity: 1; }
+.glass-host[data-tone="light"] .glass-logo-dark { opacity: 0; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-host { --g-bg: rgba(14, 14, 14, 0.94); }
+  .glass-host[data-tone="light"] { --g-bg: rgba(255, 255, 255, 0.96); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-host { --g-bg: rgb(14, 14, 14); }
+  .glass-host[data-tone="light"] { --g-bg: rgb(255, 255, 255); }
+  .glass-pill, .glass-panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) { .glass-pill, .glass-panel, .glass-logo-light, .glass-logo-dark { transition: none !important; } }
+
+/* ======================= Hero: headline over a rising globe ======================= */
+.hero-horizon { position: absolute; left: 50%; bottom: -6%; width: 110%; height: 50%; transform: translateX(-50%); z-index: -15; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(74, 174, 94, 0.22), transparent 70%); -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent); mask-image: linear-gradient(to bottom, black 55%, transparent); }
+
+/* Staged entrance: transform + blur only (never opacity), so the headline paints immediately and LCP isn't delayed. */
+@keyframes hero-rise-in { from { transform: translateY(14px); } to { transform: none; } }
+.hero-in { animation: hero-rise-in 0.7s var(--ease) backwards; animation-delay: calc(var(--d, 0s) + 0.25s); }
+/* Skyline: rises into place from the bottom edge. */
+@keyframes skyline-rise { from { translate: 0 60px; } to { translate: 0 0; } }
+.hero-rise { animation: skyline-rise 1.2s var(--ease) 0.5s backwards; }
+
+/* Horizon glow behind the skyline. */
+
+/* Headline: every letter flips up into place, left to right. Transform only, so the text is painted immediately. */
+.ltr { display: inline-block; transform-origin: 50% 100%; animation: letter-in 0.65s var(--ease) backwards; animation-delay: calc(0.1s + var(--i, 0) * 32ms); }
+@keyframes letter-in { from { transform: translateY(0.32em) rotateX(-85deg); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-in, .hero-rise, .ltr { animation: none !important; }
+  .hero-horizon { translate: none !important; }
+}
+
+/* Dark scope: the inverse of .light-surface, for dark UI (terminals) that sits inside a white section. */
+.dark-surface {
+  --ink: #fafafa; --ink-muted: #a3a3a3; --line: #262626; --line-strong: #6b6b6b;
+  --brand: #4aae5e; --brand-text: #4aae5e; --brand-logo: #3c944c;
+  --wash: #141414; --paper: #0a0a0a; --forest: #000000; --forest-2: #141414; --forest-3: #1f1f1f; --mint: #141414;
+  background: #0a0a0a; color: #fafafa;
+}
+
+/* Pixel edges overlap the section above AND below by 2px (half-pixel boundaries otherwise let the page background show as a hairline). */
+main > section, main > .hero { position: relative; z-index: 1; }
+
+
+
+/* Services explorer: the panel's content slides in when the selection changes. Transform + opacity only. */
+@keyframes svc-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.svc-panel-in { animation: svc-in 0.35s var(--ease); }
+@media (prefers-reduced-motion: reduce) { .svc-panel-in { animation: none; } }
