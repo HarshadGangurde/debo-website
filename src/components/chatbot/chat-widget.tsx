@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import {
   completeSubmission, handleInput, inFlow, initialState, placeholderFor, reprompt, welcome,
@@ -71,6 +72,7 @@ const pill = "rounded-full border px-4 py-2 text-sm font-semibold leading-snug t
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [nudge, setNudge] = useState(false);
+  const onHome = usePathname() === "/";
   const [online, setOnline] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [flow, setFlow] = useState<FlowState>(initialState);
@@ -303,7 +305,7 @@ export function ChatWidget() {
               <button type="button" onClick={askReset} aria-label="Start a new conversation" title="New conversation" className="debo-icon">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
               </button>
-              <button type="button" onClick={closeChat} aria-label="Close chat" title="Close" className="debo-icon">
+              <button type="button" onClick={closeChat} aria-label="Close chat" title="Close" className="debo-icon debo-mobile-only">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg>
               </button>
             </div>
@@ -349,8 +351,11 @@ export function ChatWidget() {
                   {m.action && safeHref(m.action.href) && (
                     <a href={m.action.href} target={external(m.action.href) ? "_blank" : undefined} rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center rounded-full bg-[var(--d-brand)] px-5 text-sm font-semibold text-black shadow-[0_8px_24px_-10px_rgba(76,175,104,.7)] transition-colors duration-150 hover:bg-[var(--d-brand-hi)]">{m.action.label}</a>
                   )}
+                  {isLast && !user && m.options && !typing && i === 0 && (
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--d-muted)]">Try asking</p>
+                  )}
                   {isLast && !user && m.options && !typing && (
-                    <div className={`mt-3 w-full ${m.options.length > 6 ? "grid grid-cols-2" : "flex flex-wrap"} gap-2`}>
+                    <div className={`${i === 0 ? "mt-2" : "mt-3"} w-full ${m.options.length > 6 ? "grid grid-cols-2" : "flex flex-wrap"} gap-2`}>
                       {m.options.map((o) => {
                         const on = picked.includes(o.value);
                         return (
@@ -407,21 +412,22 @@ export function ChatWidget() {
         </section>
       )}
 
-      {!open && nudge && (
+      {!open && nudge && onHome && (
         <div className="debo-nudge fixed bottom-[5.5rem] right-4 z-50 flex max-w-[16rem] items-start gap-1 rounded-2xl border border-[var(--d-border)] bg-[var(--d-raised)] py-2 pl-4 pr-2 text-sm text-[var(--d-text)] shadow-[0_16px_48px_-12px_rgba(0,0,0,.8)] sm:bottom-28 sm:right-6">
-          <button type="button" onClick={openChat} className="py-1 text-left leading-snug">Hi 👋 Planning a project? Tell us what you want to build.</button>
+          <button type="button" onClick={openChat} className="py-1 text-left leading-snug">Hey, this is Debo. How may I help you?</button>
           <button type="button" onClick={dismissNudge} aria-label="Dismiss" className="debo-icon shrink-0 text-xl leading-none">×</button>
         </div>
       )}
 
-      {!open && (
-        <button
-          ref={launcherRef} type="button" onClick={openChat} aria-label="Open DeboisTech assistant"
-          className="debo-launch fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--d-brand)] bg-[var(--d-bg)] shadow-[0_8px_28px_-10px_rgba(76,175,104,.55)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--d-brand-hi)] sm:bottom-6 sm:right-6 sm:h-16 sm:w-16"
-        >
-          <Logo size={48} />
-        </button>
-      )}
+      <button
+        ref={launcherRef} type="button" onClick={open ? closeChat : openChat} aria-expanded={open}
+        aria-label={open ? "Close DeboisTech assistant" : "Open DeboisTech assistant"}
+        className={`debo-launch fixed bottom-4 right-4 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-[var(--d-brand)] shadow-[0_8px_28px_-10px_rgba(76,175,104,.55)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--d-brand-hi)] sm:bottom-6 sm:right-6 sm:h-16 sm:w-16 ${open ? "max-sm:hidden" : ""}`}
+      >
+        {open
+          ? <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--d-brand-hi)" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg>
+          : <Logo size={48} />}
+      </button>
     </div>
   );
 }
