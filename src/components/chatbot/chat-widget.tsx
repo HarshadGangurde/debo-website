@@ -102,7 +102,7 @@ export function ChatWidget() {
     setConvId(s?.id ?? uid());
     /* eslint-enable react-hooks/set-state-in-effect */
     let seen = false;
-    try { seen = !!localStorage.getItem(NUDGE_KEY); } catch { /* ignore */ }
+    try { seen = !!sessionStorage.getItem(NUDGE_KEY); } catch { /* ignore */ }
     if (seen) return;
     const t = setTimeout(() => setNudge(true), 4000);
     return () => clearTimeout(t);
@@ -186,7 +186,7 @@ export function ChatWidget() {
 
   const dismissNudge = () => {
     setNudge(false);
-    try { localStorage.setItem(NUDGE_KEY, "1"); } catch { /* ignore */ }
+    try { sessionStorage.setItem(NUDGE_KEY, "1"); } catch { /* ignore */ }
   };
   const openChat = () => { dismissNudge(); setOpen(true); };
   const closeChat = () => { setConfirmReset(false); setOpen(false); };
@@ -414,7 +414,7 @@ export function ChatWidget() {
 
       {!open && nudge && onHome && (
         <div className="debo-nudge fixed bottom-[5.5rem] right-4 z-50 flex max-w-[16rem] items-start gap-1 rounded-2xl border border-[var(--d-border)] bg-[var(--d-raised)] py-2 pl-4 pr-2 text-sm text-[var(--d-text)] shadow-[0_16px_48px_-12px_rgba(0,0,0,.8)] sm:bottom-28 sm:right-6">
-          <button type="button" onClick={openChat} className="py-1 text-left leading-snug">Hey, this is Debo. How may I help you?</button>
+          <button type="button" onClick={openChat} className="py-1 text-left leading-snug">Hey, Debo here! How may I help you?</button>
           <button type="button" onClick={dismissNudge} aria-label="Dismiss" className="debo-icon shrink-0 text-xl leading-none">×</button>
         </div>
       )}
